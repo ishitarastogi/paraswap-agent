@@ -17,7 +17,7 @@ export const createFinding = (
   return Finding.fromObject({
     name: "Admin Role",
     description: "Admin controlled functions",
-    alertId: "PARASWAP-2",
+    alertId: "PARASWAP-1",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol:"PARASWAP",
@@ -55,7 +55,7 @@ export function provideHandleTransaction(
         const value: BigNumber= event.args.value;
         console.log(from,to,value)
         const functionValue = await transferTokensFunction.partitions(
-          to,value,
+          from,to,value,
           { blockTag: txEvent.blockNumber }
         );
         const newFinding: Finding = createFinding(
