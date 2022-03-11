@@ -42,10 +42,10 @@ export function provideHandleTransaction(
     );
 
     await Promise.all(
-      transferTokensFun.map(async (event) => {
-        const from: string = event.args.from;
-        const to: string = event.args.to;
-        const value: BigNumber = event.args.value;
+      transferTokensFun.map(async (params) => {
+        const from: string = params.args.token;
+        const to: string = params.args.destination;
+        const value: BigNumber = params.args.amount;
 
         const transferEvents = txEvent.filterLog(
           util.AUGUSTUS_SWAPPER,
