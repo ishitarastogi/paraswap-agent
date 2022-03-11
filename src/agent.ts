@@ -49,15 +49,18 @@ export function provideHandleTransaction(
       for (let i of params) {
         metadata[i] = arr.args[i];
       }
+      const newFinding: Finding = createFinding(metadata)
+      findings.push(newFinding);
     });
     logs.forEach((arr) => {
       let params = arr.eventFragment.inputs.map((e) => e.name);
       for (let i of params) {
         metadata[i] = arr.args[i];
       }
+      const newFinding: Finding = createFinding(metadata)
+      findings.push(newFinding);
     });
-    const newFinding: Finding = createFinding(metadata)
-    findings.push(newFinding);
+  
 
     return findings;
 
