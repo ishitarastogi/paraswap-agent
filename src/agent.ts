@@ -3,19 +3,13 @@ import {
   TransactionEvent,
   FindingSeverity,
   FindingType,
-  getEthersProvider,
-  ethers,
-  
 } from "forta-agent";
-import { BigNumber, utils, providers } from "ethers";
 import util from "./utils";
 
 const AugustusSwapper: string = "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57";
 
-export const createFinding = (
-  from: string,
-  to: string,
-  value: BigNumber
+ const createFinding = (
+metadata:any
 ): Finding => {
   return Finding.fromObject({
     name: "Admin Role",
@@ -24,7 +18,7 @@ export const createFinding = (
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "PARASWAP",
-    metadata: {},
+    metadata: metadata
   });
 };
 
@@ -36,7 +30,7 @@ export function provideHandleTransaction(
     const findings: Finding[] = [];
 
     const logs = txEvent.filterLog(
-      [util.TRANSFER, util.ADAPTER_INITIALIZED, util.ROUTER_INITIALIZED],
+      [util.ADAPTER_INITIALIZED, util.ROUTER_INITIALIZED],
       augustusSwapper
     );
     const functionLogs = txEvent.filterFunction(
@@ -48,13 +42,25 @@ export function provideHandleTransaction(
       ],
       augustusSwapper
     );
+    let metadata: any = {};
+
     functionLogs.forEach((arr) => {
       let params = arr.functionFragment.inputs.map((e) => e.name);
-      let metadata: any = {};
       for (let i of params) {
         metadata[i] = arr.args[i];
       }
     });
+    logs.forEach((arr) => {
+      let params = arr.eventFragment.inputs.map((e) => e.name);
+      for (let i of params) {
+        metadata[i] = arr.args[i];
+      }
+    });
+    const newFinding: Finding = createFinding(metadata)
+    findings.push(newFinding);
+
+    return findings;
+
   };
 }
 
