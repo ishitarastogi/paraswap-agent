@@ -54,7 +54,7 @@ export function provideHandleTransaction(
         const to: string= event.args.to;
         const value: BigNumber= event.args.value;
         console.log(from,to,value)
-        const functionValue = await transferTokensFunction.partitions(
+        const functionValue = await transferTokensFunction.transferTokens(
           from,to,value,
           { blockTag: txEvent.blockNumber }
         );
