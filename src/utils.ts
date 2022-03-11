@@ -1,5 +1,5 @@
-const TRANSFER= 
-  `event Transfer(address indexed from, address indexed to, uint256 value)`
+// const TRANSFER= 
+//   `event Transfer(address indexed from, address indexed to, uint256 value)`
 
 const ADAPTER_INITIALIZED=
 `event AdapterInitialized(address indexed adapter)`
@@ -17,7 +17,7 @@ const SET_FEE_WALLET =
 const REGISTER_PARTNER="function registerPartner(address partner, uint256 _partnerShare, bool _noPositiveSlippage, bool _positiveSlippageToUser, uint16 _feePercent, string calldata partnerId, bytes calldata _data)"
 
 export default {
-  TRANSFER,
+ 
   TRANSFER_TOKENS,
   SET_IMPLEMENTATION,
   SET_FEE_WALLET,
@@ -25,3 +25,4 @@ export default {
   ROUTER_INITIALIZED,
   REGISTER_PARTNER
 };
+
