@@ -19,6 +19,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ethersproject/abi": "^5.6.0",
     "@ethersproject/bignumber": "^5.5.0",
     "bignumber.js": "^9.0.1",
     "forta-agent": "^0.0.38",
