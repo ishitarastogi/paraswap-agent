@@ -15,7 +15,7 @@ const USER_ADDR = createAddress("0xaa");
 
 
 // const testSetIFace = new utils.Interface([util.SET_IMPLEMENTATION]);
-// const testSetFeeIFace = new utils.Interface(util.SET_FEE_WALLET);
+// const testSetFeeIFace = new utils.Interface(util.SET_FEE_WALLET)
 const iface: utils.Interface = new utils.Interface([
   util.SET_IMPLEMENTATION,
   util.SET_FEE_WALLET
