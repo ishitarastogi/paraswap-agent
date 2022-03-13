@@ -12,8 +12,7 @@ const SET_IMPLEMENTATION:string =
 "function setImplementation(bytes4 selector, address implementation)"
 const SET_FEE_WALLET:string = 
   "function setFeeWallet(address payable _feeWallet)"
-
-//const REGISTER_PARTNER="function registerPartner(address partner, uint256 _partnerShare, bool _noPositiveSlippage, bool _positiveSlippageToUser, uint16 _feePercent, string calldata partnerId, bytes calldata _data)"
+const REGISTER_PARTNER="function registerPartner(address partner, uint256 _partnerShare, bool _noPositiveSlippage, bool _positiveSlippageToUser, uint16 _feePercent, string calldata partnerId, bytes calldata _data)"
 
 export default {
  
@@ -22,5 +21,5 @@ export default {
   SET_FEE_WALLET,
   ADAPTER_INITIALIZED,
   ROUTER_INITIALIZED,
-  //REGISTER_PARTNER
+ REGISTER_PARTNER
 };
