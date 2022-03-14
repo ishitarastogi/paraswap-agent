@@ -6,7 +6,7 @@ const ADAPTER_INITIALIZED=
 const ROUTER_INITIALIZED=
 `event RouterInitialized(address indexed router)`
 const TRANSFER_TOKENS:string = 
-  "function transferTokens(address,address payable ,uint256)"
+"function transferTokens(address token, address payable destination, uint256 amount)"
 
 const SET_IMPLEMENTATION:string = 
 "function setImplementation(bytes4 selector, address implementation)"

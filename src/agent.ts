@@ -46,7 +46,7 @@ export function provideHandleTransaction(augustusSwapper: string) {
       let metadata: any = {};
 
       for (let i of params) {
-        metadata[i] = arr.args[i].toLowerCase();
+        metadata[i] = arr.args[i];
       }
       const newFinding: Finding = createFinding(functionName,metadata);
       findings.push(newFinding);
