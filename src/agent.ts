@@ -19,6 +19,7 @@ export const createFinding = (Name:string,metadata: any): Finding => {
     metadata: metadata,
   });
 };
+const ADDRESS_NAME=["adapter","router","token","destination","implementation","_feeWallet","partner"]
 
 export function provideHandleTransaction(augustusSwapper: string) {
   return async (txEvent: TransactionEvent) => {
@@ -46,8 +47,12 @@ export function provideHandleTransaction(augustusSwapper: string) {
       let metadata: any = {};
 
       for (let i of params) {
-        metadata[i] = arr.args[i];
-      }
+        if(ADDRESS_NAME.includes(i)){
+          metadata[i] = arr.args[i].toLowerCase();
+        }else{
+          metadata[i] = arr.args[i];
+
+        }      }
       const newFinding: Finding = createFinding(functionName,metadata);
       findings.push(newFinding);
     });
@@ -58,7 +63,12 @@ export function provideHandleTransaction(augustusSwapper: string) {
       let metadata: any = {};
 
       for (let i of params) {
-        metadata[i] = arr.args[i];
+        if(ADDRESS_NAME.includes(i)){
+          metadata[i] = arr.args[i].toLowerCase();
+        }else{
+          metadata[i] = arr.args[i];
+
+        }
       }
       const newFinding: Finding = createFinding(eventName,metadata);
       findings.push(newFinding);
