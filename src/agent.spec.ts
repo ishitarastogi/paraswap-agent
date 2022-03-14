@@ -204,7 +204,7 @@ describe("Large stake deposits", () => {
   it("should return no findings from incorrect address", async () => {
 
   });
-  it("should return findings from incorrect event signature", async () => {
+  it("should return no findings from incorrect event signature", async () => {
 
   });
   it("should return findings for multiple function calls for transferTokens", async ()=>{
