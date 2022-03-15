@@ -12,6 +12,7 @@ import util from "./utils";
 
 const testAugustus: string = createAddress("0xdef1");
 const USER_ADDR = createAddress("0xf1e4a");
+const IRRELEVENT_IFACE:utils.Interface = new utils.Interface(["event wrongsig()", "function wrongFunction()"]);
 
 const iface: utils.Interface = new utils.Interface([
   util.SET_IMPLEMENTATION,
@@ -202,11 +203,133 @@ describe("Large stake deposits", () => {
     expect(findings).toStrictEqual([expectedFinding]);
   });
   it("should return no findings from incorrect address", async () => {
+    const IRRELEVENT_ADDR = createAddress("0xff");
+    const log1 = iface.encodeEventLog(iface.getEvent("RouterInitialized"),[createAddress("0xd4")])
+    const log2 = iface.encodeEventLog(iface.getEvent("RouterInitialized"),[createAddress("0xd4")])
+    const tx: TransactionEvent = new TestTransactionEvent()
+    .setFrom(USER_ADDR)
+    .addTraces({
+      to: IRRELEVENT_ADDR,
+      from: USER_ADDR,
+      input: iface.encodeFunctionData(
+        "setImplementation",
+        ["0xafde1234", createAddress("0xd1")] 
+      ),
+    })
+    .addTraces({
+      to: IRRELEVENT_ADDR,
+      from: USER_ADDR,
+      input: iface.encodeFunctionData(
+        "setFeeWallet",
+        [createAddress("0xd3")] 
+      ),
+    })
 
+    .addAnonymousEventLog(IRRELEVENT_ADDR, log1.data, ...log1.topics)
+    .addAnonymousEventLog(IRRELEVENT_ADDR, log2.data, ...log2.topics)
+    const findings = await handler(tx);
+    expect(findings).toStrictEqual([]);
   });
   it("should return findings from incorrect event signature", async () => {
-
+    const log1 = IRRELEVENT_IFACE.encodeEventLog(IRRELEVENT_IFACE.getEvent("wrongsig"),[])
+    const log2 = IRRELEVENT_IFACE.encodeEventLog(IRRELEVENT_IFACE.getEvent("wrongsig"),[])
+    const tx: TransactionEvent = new TestTransactionEvent()
+    .setFrom(USER_ADDR)
+    .addTraces({
+      to: testAugustus,
+      from: USER_ADDR,
+      input: IRRELEVENT_IFACE.encodeFunctionData(
+        "wrongFunction",
+        [] 
+      ),
+    })
+    .addTraces({
+      to: testAugustus,
+      from: USER_ADDR,
+      input: IRRELEVENT_IFACE.encodeFunctionData(
+        "wrongFunction",
+        [] 
+      ),
+    })
+    .addAnonymousEventLog(testAugustus, log1.data, ...log1.topics)
+    .addAnonymousEventLog(testAugustus, log2.data, ...log2.topics)
+    const findings = await handler(tx);
+    expect(findings).toStrictEqual([]);
   });
-  it("should return findings for multiple function calls for transferTokens", async ()=>{
+  it("Should return findings when admin operations are executed on AugustusSwapper Contract", async ()=>{
+    const log1 = iface.encodeEventLog(iface.getEvent("AdapterInitialized"),[createAddress("0xd4")])
+   // const log2 = iface.encodeEventLog(iface.getEvent("RouterInitialized"),[createAddress("0xd4")])
+    const tx: TransactionEvent = new TestTransactionEvent()
+    .setFrom(USER_ADDR)
+    .addTraces({
+      to: testAugustus,
+      from: USER_ADDR,
+      input: iface.encodeFunctionData(
+        "setImplementation",
+        ["0xafde1234", createAddress("0xd1")] 
+      ),
+    })
+    .addTraces({
+      to: testAugustus,
+      from: USER_ADDR,
+      input: iface.encodeFunctionData(
+        "setFeeWallet",
+        [createAddress("0xd3")]
+      ),
+    })
+    .addTraces({
+      to: testAugustus,
+      from: USER_ADDR,
+      input: iface.encodeFunctionData(
+        "registerPartner",
+        [createAddress("0xd6"), BigNumber.from(100), true, false, 1, "partnerId", "0xda12"],
+      ),
+    })
+
+    .addAnonymousEventLog(testAugustus, log1.data, ...log1.topics)
+   // .addAnonymousEventLog(testAugustus, log2.data, ...log2.topics)
+    const findings = await handler(tx);
+    const a=createFinding("setImplementation", {selector:"0xafde1234", implementation:createAddress("0xd1")}) 
+    const b=createFinding("setFeeWallet", {_feeWallet:createAddress("0xd3")})
+const c=      createFinding("registerPartner", {
+  partner: createAddress("0xd6"),
+  _partnerShare: BigNumber.from(100),
+  _noPositiveSlippage: true,
+  _positiveSlippageToUser: false,
+  _feePercent: 1,
+  partnerId: "partnerId",
+  _data: "0xda12",
+})
+const d= createFinding("AdapterInitialized", {
+        adapter:createAddress("0xd4"),
+      })
+    console.log(findings,"set",a,b,c,d)
+    expect(findings).toStrictEqual([a,b,c,d]);
   })
+  it("Should return multiple findings when transferTokens is called many times", async () => {
+    const tx: TransactionEvent = new TestTransactionEvent()
+      .setFrom(USER_ADDR)
+      .addTraces({
+        to: testAugustus,
+        from: USER_ADDR,
+        input: iface.encodeFunctionData(
+          "transferTokens",
+          [createAddress("0xb1"), createAddress("0xc1"), BigNumber.from(10)] // transferTokens args
+        ),
+      })
+      .addTraces({
+        to: testAugustus,
+        from: USER_ADDR, 
+        input: iface.encodeFunctionData(
+          "transferTokens",
+          [createAddress("0xb2"), createAddress("0xc2"), BigNumber.from(80)] 
+        ),
+      });
+
+    const findings = await handler(tx);
+    const a= createFinding("transferTokens",{token: createAddress("0xb1"),destination: createAddress("0xc1"),amount:BigNumber.from(10)})
+    const b= createFinding("transferTokens",{token: createAddress("0xb2"),destination: createAddress("0xc2"),amount:BigNumber.from(80)})
+
+    expect(findings).toStrictEqual([a,b]);
+    })
 });
