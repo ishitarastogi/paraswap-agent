@@ -8,7 +8,7 @@ import util from "./utils";
 
 const AugustusSwapper: string = "0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57";
 
-export const createFinding = (Name:string,metadata: any): Finding => {
+export const createFinding = (Name: string, metadata: any): Finding => {
   return Finding.fromObject({
     name: "Admin Role",
     description: `${Name}`,
@@ -19,13 +19,21 @@ export const createFinding = (Name:string,metadata: any): Finding => {
     metadata: metadata,
   });
 };
-const ADDRESS_NAME=["adapter","router","token","destination","implementation","_feeWallet","partner"]
+const ADDRESS_NAME = [
+  "adapter",
+  "router",
+  "token",
+  "destination",
+  "implementation",
+  "_feeWallet",
+  "partner",
+];
 
 export function provideHandleTransaction(augustusSwapper: string) {
   return async (txEvent: TransactionEvent) => {
     const findings: Finding[] = [];
 
-    const logs = txEvent.filterLog(
+    const eventsLogs = txEvent.filterLog(
       [util.ADAPTER_INITIALIZED, util.ROUTER_INITIALIZED],
       augustusSwapper
     );
@@ -40,37 +48,38 @@ export function provideHandleTransaction(augustusSwapper: string) {
       augustusSwapper
     );
 
-    functionLogs.forEach((arr) => {
-    let functionName:string = arr.name;
+    functionLogs.forEach((functionData) => {
+      let functionName: string = functionData.name;
 
-      let params = arr.functionFragment.inputs.map((e) => e.name);
+      let parameterNameArray = functionData.functionFragment.inputs.map(
+        (e) => e.name
+      );
       let metadata: any = {};
 
-      for (let i of params) {
-        if(ADDRESS_NAME.includes(i)){
-          metadata[i] = arr.args[i].toLowerCase();
-        }else{
-          metadata[i] = arr.args[i];
-
-        }      }
-      const newFinding: Finding = createFinding(functionName,metadata);
-      findings.push(newFinding);
-    });
-    logs.forEach((arr) => {
-      let eventName:string = arr.name;
-
-      let params = arr.eventFragment.inputs.map((e) => e.name);
-      let metadata: any = {};
-
-      for (let i of params) {
-        if(ADDRESS_NAME.includes(i)){
-          metadata[i] = arr.args[i].toLowerCase();
-        }else{
-          metadata[i] = arr.args[i];
-
+      for (let paramName of parameterNameArray) {
+        if (ADDRESS_NAME.includes(paramName)) {
+          metadata[paramName] = functionData.args[paramName].toLowerCase();
+        } else {
+          metadata[paramName] = functionData.args[paramName];
         }
       }
-      const newFinding: Finding = createFinding(eventName,metadata);
+      const newFinding: Finding = createFinding(functionName, metadata);
+      findings.push(newFinding);
+    });
+    eventsLogs.forEach((eventData) => {
+      let eventName: string = eventData.name;
+
+      let parameterArray = eventData.eventFragment.inputs.map((e) => e.name);
+      let metadata: any = {};
+
+      for (let paramName of parameterArray) {
+        if (ADDRESS_NAME.includes(paramName)) {
+          metadata[paramName] = eventData.args[paramName].toLowerCase();
+        } else {
+          metadata[paramName] = eventData.args[paramName];
+        }
+      }
+      const newFinding: Finding = createFinding(eventName, metadata);
       findings.push(newFinding);
     });
 
